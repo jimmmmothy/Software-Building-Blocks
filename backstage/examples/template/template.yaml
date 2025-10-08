@@ -47,24 +47,47 @@ spec:
         values:
           name: ${{ parameters.name }}
 
+    - id: commit-changes
+      name: Commit Changes
+      action: github:commit
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        branch: 'template-changes-${{ parameters.name }}'
+        commitMessage: 'Add template changes'
+        author:
+          name: 'Backstage'
+        files:
+          - path: '**/*'
+        overwrite: true
+
+    - id: create-pr
+      name: Create Pull Request
+      action: github:pull-request
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        sourceBranch: 'template-changes-${{ parameters.name }}'
+        targetBranch: main
+        title: 'Template changes for ${{ parameters.name }}'
+        body: 'This PR was created by Backstage template execution.'
+
     # This step publishes the contents of the working directory to GitHub.
     # If you or your organization prefer another default branch name over 'main'
     # you can change that here.
-    - id: publish
-      name: Publish
-      action: publish:github
-      input:
-        description: This is ${{ parameters.name }}
-        repoUrl: ${{ parameters.repoUrl }}
-        defaultBranch: 'main'
+#    - id: publish
+#      name: Publish
+#      action: publish:github
+#      input:
+#        description: This is ${{ parameters.name }}
+#        repoUrl: ${{ parameters.repoUrl }}
+#        defaultBranch: 'main'
 
     # The final step is to register our new component in the catalog.
-    - id: register
-      name: Register
-      action: catalog:register
-      input:
-        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
-        catalogInfoPath: '/catalog-info.yaml'
+#    - id: register
+#      name: Register
+#      action: catalog:register
+#      input:
+#        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+#        catalogInfoPath: '/catalog-info.yaml'
 
     # Let's notify the user that the template has completed using the Notification action
     - id: notify
@@ -82,7 +105,7 @@ spec:
   output:
     links:
       - title: Repository
-        url: ${{ steps['publish'].output.remoteUrl }}
-      - title: Open in catalog
-        icon: catalog
-        entityRef: ${{ steps['register'].output.entityRef }}
+        url: ${{ steps['create-pr'].output.remoteUrl }}
+#      - title: Open in catalog
+#        icon: catalog
+#        entityRef: ${{ steps['register'].output.entityRef }}
