@@ -3,29 +3,50 @@ kind: Template
 metadata:
   name: keycloak-building-block
   title: Keycloak Authentication Building Block
-  description: Deploy a preconfigured Keycloak authentication service
+  description: Deploy a preconfigured Keycloak instance and publish to your GitHub
 spec:
-  owner: Group4
+  owner: your-team
   type: service
 
+  #############################################
+  # 1) Parameters users fill in the UI
+  #############################################
   parameters:
-    - title: Configuration
-      required:
-        - realm
-        - client_id
+    - title: Keycloak configuration
+      required: [realm, client_id]
       properties:
         realm:
           type: string
-          description: Name of the Keycloak realm
+          title: Realm name
         client_id:
           type: string
-          description: Default client ID
+          title: Default client ID
 
+    - title: GitHub settings
+      required: [owner, repo, visibility, githubToken]
+      properties:
+        owner:
+          type: string
+        repo:
+          type: string
+        visibility:
+          type: string
+          enum: [public, private, internal]
+        githubToken:
+          type: string
+          title: GitHub Personal Access Token
+          description: 'Scopes: repo (+ workflow if using Actions)'
+          ui:widget: password
+
+  #############################################
+  # 3) Steps
+  #############################################
   steps:
     - id: fetch
       name: Fetch Keycloak base
       action: fetch:template
       input:
+        # Point this to your skeleton directory (repo or subdir)
         url: https://github.com/jimmmmothy/keycloak-template-repo
         targetPath: ./
         values:
@@ -33,14 +54,26 @@ spec:
           client_id: ${{ parameters.client_id }}
 
     - id: publish
-      name: Publish to GitHub
+      name: Publish to GitHub (user PAT)
       action: publish:github
       input:
-        repoUrl: github.com?owner=jimmmmothy&repo=${{ parameters.realm }}-keycloak
-        description: "Keycloak building block repository"
+        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repo }}
+        description: "Keycloak building block for realm ${{ parameters.realm }}"
+        repoVisibility: ${{ parameters.visibility }}
+        defaultBranch: main
+        token: ${{ secrets.githubToken }}   # <-- PAT supplied by the user at runtime
 
     - id: register
-      name: Register in Backstage
+      name: Register in Backstage catalog
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        # catalogInfoPath: /catalog-info.yaml  # uncomment if not at repo root
+
+  #############################################
+  # 4) Output links
+  #############################################
+  output:
+    links:
+      - title: New repository
+        url: ${{ steps.publish.output.remoteUrl }}
