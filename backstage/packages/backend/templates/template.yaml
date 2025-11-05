@@ -1,0 +1,46 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: keycloak-building-block
+  title: Keycloak Authentication Building Block
+  description: Deploy a preconfigured Keycloak authentication service
+spec:
+  owner: Group4
+  type: service
+
+  parameters:
+    - title: Configuration
+      required:
+        - realm
+        - client_id
+      properties:
+        realm:
+          type: string
+          description: Name of the Keycloak realm
+        client_id:
+          type: string
+          description: Default client ID
+
+  steps:
+    - id: fetch
+      name: Fetch Keycloak base
+      action: fetch:template
+      input:
+        url: https://github.com/jimmmmothy/keycloak-template-repo
+        targetPath: ./
+        values:
+          realm: ${{ parameters.realm }}
+          client_id: ${{ parameters.client_id }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=jimmmmothy&repo=${{ parameters.realm }}-keycloak
+        description: "Keycloak building block repository"
+
+    - id: register
+      name: Register in Backstage
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
