@@ -8,10 +8,10 @@ yarn install
 ## Prerequisites
 You will need environment variables:
 ```
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-POSTGRES_HOST=
-POSTGRES_PORT=
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<your password>
+POSTGRES_HOST=<your host (localhost)>
+POSTGRES_PORT=<your port (likely 5432)>
 NODE_OPTIONS=--no-node-snapshot
 ```
 
