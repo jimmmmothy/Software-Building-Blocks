@@ -12,18 +12,49 @@ spec:
   # 1) Parameters users fill in the UI
   #############################################
   parameters:
-    - title: Keycloak configuration
-      required: [realm, client_id]
+    - title: Keycloak Configuration
+      required: [realm, client_id, admin_user, admin_password]
       properties:
         realm:
           type: string
           title: Realm name
+          description: "Name of the realm to create"
         client_id:
           type: string
-          title: Default client ID
+          title: Default Client ID
+          description: "Default client created in the realm"
+        admin_user:
+          type: string
+          title: Keycloak Admin Username
+          default: admin
+        admin_password:
+          type: string
+          title: Keycloak Admin Password
+          ui:widget: password
+          description: "Password for the admin user"
+        theme:
+          type: string
+          title: Login Theme
+          default: base
+          enum: [base, keycloak, mytheme]
+        redirect_uris:
+          type: array
+          title: Allowed Redirect URIs
+          items:
+            type: string
+          default:
+            - "http://localhost:3000/*"
+        roles:
+          type: array
+          title: Default Roles
+          items:
+            type: string
+          default:
+            - user
+            - admin
 
     - title: GitHub settings
-      required: [owner, repo, visibility, githubToken]
+      required: [owner, repo, visibility]
       properties:
         owner:
           type: string
@@ -32,11 +63,6 @@ spec:
         visibility:
           type: string
           enum: [public, private, internal]
-        githubToken:
-          type: string
-          title: GitHub Personal Access Token
-          description: 'Scopes: repo (+ workflow if using Actions)'
-          ui:widget: password
 
   #############################################
   # 3) Steps
@@ -46,12 +72,16 @@ spec:
       name: Fetch Keycloak base
       action: fetch:template
       input:
-        # Point this to your skeleton directory (repo or subdir)
-        url: https://github.com/jimmmmothy/keycloak-template-repo
+        url: https://github.com/jimmmmothy/keycloak-template-repo/
         targetPath: ./
         values:
           realm: ${{ parameters.realm }}
           client_id: ${{ parameters.client_id }}
+          admin_user: ${{ parameters.admin_user }}
+          admin_password: ${{ parameters.admin_password }}
+          theme: ${{ parameters.theme }}
+          roles: ["admin", "user"]
+          redirect_uris: ["http://localhost:3000/*"]
 
     - id: publish
       name: Publish to GitHub (user PAT)
@@ -61,7 +91,7 @@ spec:
         description: "Keycloak building block for realm ${{ parameters.realm }}"
         repoVisibility: ${{ parameters.visibility }}
         defaultBranch: main
-        token: ${{ secrets.githubToken }}   # <-- PAT supplied by the user at runtime
+        # token: ${{ secrets.githubToken }}   # <-- PAT supplied by the user at runtime
 
     - id: register
       name: Register in Backstage catalog
