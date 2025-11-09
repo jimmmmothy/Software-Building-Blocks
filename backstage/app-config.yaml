@@ -47,7 +47,7 @@ integrations:
     #   apiBaseUrl: https://ghe.example.net/api/v3
     #   token: ${GHE_TOKEN}
 
-proxy:
+# proxy:
   ### Example for how to add a proxy endpoint for the frontend.
   ### A typical reason to do this is to handle HTTPS and CORS for internal services.
   # endpoints:
@@ -73,12 +73,14 @@ auth:
     guest: {}
     github:
         development:
-            clientId: ${CLIENT_ID}
-            clientSecret: ${CLIENT_SECRET}
+            # clientId: ${CLIENT_ID}
+            clientId: Ov23liEdsL8m5SJWdfWf
+            # clientSecret: ${CLIENT_SECRET}
+            clientSecret: 34b0b26de767a3b3d3593341a500dc1590138f17
             signIn:
                 resolvers:
                 - resolver: usernameMatchingUserEntityName
-scaffolder:
+      
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
 catalog:
@@ -114,7 +116,7 @@ catalog:
     #   rules:
     #     - allow: [User, Group]
 
-kubernetes:
+# kubernetes:
   # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
 
 # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
