@@ -32,7 +32,7 @@ spec:
           default: 512
 
     - title: GitHub Repository Info
-      required: [owner, repo, visibility, githubToken]
+      required: [owner, repo, visibility]
       properties:
         owner:
           type: string
@@ -43,11 +43,6 @@ spec:
         visibility:
           type: string
           enum: [public, private, internal]
-        githubToken:
-          type: string
-          title: GitHub Personal Access Token
-          description: "Enter your GitHub PAT with repo permissions"
-          ui:widget: password
 
   #############################################
   # 2) Steps
@@ -73,14 +68,13 @@ spec:
         description: "LLM Building Block for service ${{ parameters.serviceId }}"
         repoVisibility: ${{ parameters.visibility }}
         defaultBranch: main
-        token: ${{ parameters.githubToken }}
 
     - id: register
       name: Register in Backstage Catalog
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: /llm-service/catalog-info.yaml
+        # catalogInfoPath: /llm-service/catalog-info.yaml
 
   #############################################
   # 3) Output

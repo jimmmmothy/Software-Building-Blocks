@@ -80,11 +80,11 @@ spec:
           admin_user: ${{ parameters.admin_user }}
           admin_password: ${{ parameters.admin_password }}
           theme: ${{ parameters.theme }}
-          roles: ["admin", "user"]
-          redirect_uris: ["http://localhost:3000/*"]
+          roles: ${{ parameters.roles }}
+          redirect_uris: ${{ parameters.redirect_uris }}
 
     - id: publish
-      name: Publish to GitHub (user PAT)
+      name: Publish to GitHub
       action: publish:github
       input:
         repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repo }}
