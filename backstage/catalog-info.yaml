@@ -3,11 +3,20 @@ kind: Component
 metadata:
   name: backstage
   description: An example of a Backstage application.
-  # Example for optional annotations
-  # annotations:
-  #   github.com/project-slug: backstage/backstage
-  #   backstage.io/techdocs-ref: dir:.
 spec:
   type: website
   owner: john@example.com
   lifecycle: experimental
+
+# ---
+# apiVersion: backstage.io/v1alpha1
+# kind: Location
+# metadata:
+#   name: local-templates
+#   description: Local building block templates
+# spec:
+#   type: file
+#   targets:
+#     - ./templates/llm-building-block/template.yaml
+
+

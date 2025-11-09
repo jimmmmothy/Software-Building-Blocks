@@ -1,0 +1,6 @@
+model:
+  name: {{ modelName }}
+  temperature: {{ temperature }}
+  maxTokens: {{ maxTokens }}
+logging:
+  enabled: {{ enableLogging }}

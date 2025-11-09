@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ serviceId }}
+  description: LLM service using model {{ modelName }}.
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:building-blocks
