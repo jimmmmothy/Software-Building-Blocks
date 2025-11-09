@@ -67,10 +67,10 @@ techdocs:
     type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
 
 auth:
-  # see https://backstage.io/docs/auth/ to learn about auth providers
   providers:
-    # See https://backstage.io/docs/auth/guest/provider
-    guest: {}
+    guest:
+      development:
+        enabled: true
     github:
         development:
             # clientId: ${CLIENT_ID}
@@ -100,21 +100,17 @@ catalog:
       rules:
         - allow: [Template]
 
+    - type: file
+      target: ./templates/llm-building-block/template.yaml
+      rules:
+        - allow: [Template]
+
     # Local example organizational data
     - type: file
       target: ../../examples/org.yaml
       rules:
         - allow: [User, Group]
 
-    ## Uncomment these lines to add more example data
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
-
-    ## Uncomment these lines to add an example org
-    # - type: url
-    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
-    #   rules:
-    #     - allow: [User, Group]
 
 # kubernetes:
   # see https://backstage.io/docs/features/kubernetes/configuration for kubernetes configuration options
