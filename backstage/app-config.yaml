@@ -104,6 +104,11 @@ catalog:
       target: ./templates/llm-building-block/template.yaml
       rules:
         - allow: [Template]
+    
+    - type: file
+      target: ./templates/virtual-human-llm/template.yaml
+      rules:
+        - allow: [Template]
 
     # Local example organizational data
     - type: file
