@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: {{ values.componentName }}
+  name: ${{ values.componentName }}
   description: Python LLM service
 spec:
   type: service
