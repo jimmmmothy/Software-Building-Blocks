@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vh-brain-deployment
+  namespace: virtual-human
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vh-brain
+  template:
+    metadata:
+      labels:
+        app: vh-brain
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: vh-gpua100-machine-1
+      containers:
+      - name: vh-brain
+        image: dansil2301/vh-brain:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            nvidia.com/gpu: 1
