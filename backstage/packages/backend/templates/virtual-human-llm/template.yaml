@@ -1,69 +1,84 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: llm-service
-  title: LLM Service
-  description: Create a new Python-based LLM service
+  name: llm-virtual-human
+  title: Virtual human LLM Service
+  description: Deploy a Python-based LLM service into a new repository
 spec:
-  owner: platform-team
+  owner: your-team
   type: service
 
+  #############################################
+  # 1) PARAMETERS SHOWN IN THE UI
+  #############################################
   parameters:
-    - title: Component Info
-      required:
-        - componentName
+    - title: LLM Settings
+      required: [componentName]
       properties:
         componentName:
           type: string
           title: Component Name
-          description: Name of the service
+          description: Name of the LLM service (used for repo + folder)
 
-    - title: Model Configuration
-      required:
-        - openAiKey
+    - title: API Settings
+      required: [openAiKey]
       properties:
         openAiKey:
           type: string
-          title: OpenAI Key
-          description: API key for OpenAI
+          title: OpenAI API Key
+          ui:widget: password
 
-    - title: Destination
-      required:
-        - repoUrl
+    - title: GitHub repo settings
+      required: [owner, repo, visibility]
       properties:
-        repoUrl:
+        owner:
           type: string
-          title: Git Repository URL
-          description: Where should the component be created?
+        repo:
+          type: string
+        visibility:
+          type: string
+          enum: [public, private, internal]
 
+  #############################################
+  # 2) STEPS
+  #############################################
   steps:
     - id: fetch
-      name: Fetch Template Skeleton
+      name: Fetch LLM template skeleton
       action: fetch:template
       input:
         url: ./skeleton
+        targetPath: ./               # important: place files in workspace root
         values:
           componentName: ${{ parameters.componentName }}
           openAiKey: ${{ parameters.openAiKey }}
+        copyWithoutRender:
+          - .env.example
+          - .gitignore
 
     - id: publish
-      name: Publish to GitHub
+      name: Publish LLM service to GitHub
       action: publish:github
       input:
-        repoUrl: ${{ parameters.repoUrl }}
-        description: "Generated Python LLM service"
+        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repo }}
+        description: "Python LLM service component"
+        repoVisibility: ${{ parameters.visibility }}
+        defaultBranch: main
 
     - id: register
-      name: Register Component
+      name: Register component in Backstage catalog
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
         catalogInfoPath: catalog-info.yaml
 
+  #############################################
+  # 3) OUTPUT
+  #############################################
   output:
     links:
-      - title: Repository
+      - title: New repository
         url: ${{ steps.publish.output.remoteUrl }}
-      - title: Open in Catalog
+      - title: Open in Backstage Catalog
         icon: catalog
         entityRef: ${{ steps.register.output.entityRef }}

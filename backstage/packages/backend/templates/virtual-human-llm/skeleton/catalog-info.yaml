@@ -2,8 +2,8 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: {{ values.componentName }}
-  description: "Python LLM service"
+  description: Python LLM service
 spec:
   type: service
+  owner: your-team
   lifecycle: experimental
-  owner: platform-team
