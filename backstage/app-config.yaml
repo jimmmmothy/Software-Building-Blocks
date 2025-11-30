@@ -35,6 +35,10 @@ backend:
         user: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
   # workingDirectory: /tmp # Use this to configure a working directory for the scaffolder, defaults to the OS temp-dir
+  reading:
+    allow:
+      - host: github.com
+      - host: raw.githubusercontent.com
 
 integrations:
   github:
@@ -72,14 +76,14 @@ auth:
       development:
         enabled: true
     github:
-        development:
-            # clientId: ${CLIENT_ID}
-            clientId: Ov23liEdsL8m5SJWdfWf
-            # clientSecret: ${CLIENT_SECRET}
-            clientSecret: 34b0b26de767a3b3d3593341a500dc1590138f17
-            signIn:
-                resolvers:
-                - resolver: usernameMatchingUserEntityName
+      development:
+          # clientId: ${CLIENT_ID}
+          clientId: Ov23liEdsL8m5SJWdfWf
+          # clientSecret: ${CLIENT_SECRET}
+          clientSecret: 34b0b26de767a3b3d3593341a500dc1590138f17
+          signIn:
+              resolvers:
+              - resolver: usernameMatchingUserEntityName
       
   # see https://backstage.io/docs/features/software-templates/configuration for software template options
 
@@ -104,6 +108,12 @@ catalog:
       target: ./templates/llm-building-block/template.yaml
       rules:
         - allow: [Template]
+
+    - type: file
+      target: ./templates/virtual-human-sensory-pack/template.yaml
+      rules:
+        - allow: [Template]
+
     
     - type: file
       target: ./templates/virtual-human-llm/template.yaml

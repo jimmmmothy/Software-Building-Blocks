@@ -20,6 +20,6 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
-  name: jimmmmothy
+  name: ivakk
 spec:
   memberOf: [guests]

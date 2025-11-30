@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: your-service
+  description: VH Sensory service.
+spec:
+  type: service
+  owner: your-team
+  lifecycle: experimental

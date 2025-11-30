@@ -1,0 +1,82 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: vh-sensory-pack
+  title: VH Sensory Pack
+  description: Deploys a Kafka-driven emotion extraction microservice using HuggingFace models.
+spec:
+  owner: your-team
+  type: service
+
+  #############################################
+  # 1) PARAMETERS SHOWN IN THE UI
+  #############################################
+  parameters:
+
+    - title: Component Settings
+      required: [componentName]
+      properties:
+        componentName:
+          type: string
+          title: Component Name
+          description: The name of the service and folder that will be generated.
+
+    - title: GitHub Repository Settings
+      required: [owner, repo, visibility]
+      properties:
+        owner:
+          type: string
+          title: GitHub Owner (Org or User)
+        repo:
+          type: string
+          title: Repository Name
+        visibility:
+          type: string
+          title: Repository Visibility
+          enum: [public, private, internal]
+
+  #############################################
+  # 2) SCAFFOLDER STEPS
+  #############################################
+  steps:
+
+    - id: fetch
+      name: Fetch VH Sensory Pack skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton
+        targetPath: ./
+        values:
+          componentName: ${{ parameters.componentName }}
+
+        # These files must not be rendered by templating engine
+        copyWithoutRender:
+          - .env.example
+          - .gitignore
+
+    - id: publish
+      name: Publish repository to GitHub
+      action: publish:github
+      input:
+        repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repo }}
+        description: "VH Sensory Pack: Kafka-driven emotion extraction service"
+        repoVisibility: ${{ parameters.visibility }}
+        defaultBranch: main
+
+    - id: register
+      name: Register component in Backstage catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+
+  #############################################
+  # 3) OUTPUT
+  #############################################
+  output:
+    links:
+      - title: New Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+
+      - title: Open in Backstage Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
