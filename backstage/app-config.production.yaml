@@ -53,3 +53,11 @@ catalog:
       target: ./examples/org.yaml
       rules:
         - allow: [User, Group]
+
+argocd:
+  baseUrl: https://argocd.your-domain
+  appLocatorMethods:
+    - type: 'config'
+      instances:
+        - name: argocd
+          url: https://argocd.your-domain

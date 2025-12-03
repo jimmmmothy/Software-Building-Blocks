@@ -119,3 +119,11 @@ catalog:
 permission:
   # setting this to `false` will disable permissions
   enabled: true
+
+argocd:
+  baseUrl: https://argocd.your-domain
+  appLocatorMethods:
+    - type: 'config'
+      instances:
+        - name: argocd
+          url: https://argocd.your-domain

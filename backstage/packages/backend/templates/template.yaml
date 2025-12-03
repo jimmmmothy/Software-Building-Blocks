@@ -12,7 +12,7 @@ spec:
   # 1) Parameters users fill in the UI
   #############################################
   parameters:
-    - title: Keycloak Configuration
+    - title: Keycloak config
       required: [realm, client_id, admin_user, admin_password]
       properties:
         realm:
@@ -53,16 +53,48 @@ spec:
             - user
             - admin
 
-    - title: GitHub settings
+    - title: App repository (your GitHub)
       required: [owner, repo, visibility]
       properties:
         owner:
           type: string
+          title: GitHub owner
         repo:
           type: string
+          title: Repository name
         visibility:
           type: string
           enum: [public, private, internal]
+          default: private
+
+          
+    - title: GitOps (Argo CD)
+      required: [gitops_owner, gitops_repo, cluster_server, cluster_namespace]
+      properties:
+        gitops_owner:
+          type: string
+          title: GitOps owner/org
+        gitops_repo:
+          type: string
+          title: GitOps repo name
+          default: gitops-config
+        gitops_branch:
+          type: string
+          default: main
+        cluster_server:
+          type: string
+          default: https://kubernetes.default.svc
+        cluster_namespace:
+          type: string
+          default: "{{ values.realm }}"
+        argocd_project:
+          type: string
+          default: default
+                
+
+  secrets:
+    - name: githubToken
+      description: Personal Access Token with repo + workflow scopes
 
   #############################################
   # 3) Steps
@@ -72,32 +104,60 @@ spec:
       name: Fetch Keycloak base
       action: fetch:template
       input:
-        url: https://github.com/jimmmmothy/keycloak-template-repo/
-        targetPath: ./
+        url: ./skeletons/keycloak-app
+        targetPath: ./out
         values:
           realm: ${{ parameters.realm }}
           client_id: ${{ parameters.client_id }}
           admin_user: ${{ parameters.admin_user }}
           admin_password: ${{ parameters.admin_password }}
           theme: ${{ parameters.theme }}
-          roles: ${{ parameters.roles }}
           redirect_uris: ${{ parameters.redirect_uris }}
+          roles: ${{ parameters.roles }}
+          github_owner: ${{ parameters.owner }}
+          repo: ${{ parameters.repo }}
+          gitops_owner: ${{ parameters.gitops_owner }}
+          gitops_repo: ${{ parameters.gitops_repo }}
+          gitops_branch: ${{ parameters.gitops_branch }}
+          cluster_server: ${{ parameters.cluster_server }}
+          cluster_namespace: ${{ parameters.cluster_namespace }}
+          argocd_project: ${{ parameters.argocd_project }}
 
-    - id: publish
-      name: Publish to GitHub
+    - id: publish-app
+      name: Publish app repository
       action: publish:github
       input:
         repoUrl: github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repo }}
-        description: "Keycloak building block for realm ${{ parameters.realm }}"
         repoVisibility: ${{ parameters.visibility }}
         defaultBranch: main
-        # token: ${{ secrets.githubToken }}   # <-- PAT supplied by the user at runtime
+        sourcePath: ./out
+        token: ${{ secrets.githubToken }}
+
+    - id: create-gitops-pr
+      name: Propose Argo CD Application to GitOps repo
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?owner=${{ parameters.gitops_owner }}&repo=${{ parameters.gitops_repo }}
+        branchName: chore/add-{{ parameters.realm }}-keycloak
+        title: "Add Argo CD Application for {{ parameters.realm }}-keycloak"
+        description: "Backstage template created this application for realm {{ parameters.realm }}"
+        targetBranchName: ${{ parameters.gitops_branch }}
+        token: ${{ secrets.githubToken }}
+        commitMessage: "feat(gitops): add Application {{ parameters.realm }}-keycloak"
+        # Files to add/update in the PR:
+        files:
+          - path: apps/{{ parameters.realm }}-keycloak.yaml
+            content: |
+              {{ (fetch template).value | dump }}
+        # The 'content' above should be the rendered Application file.
+        # Alternative: have fetch:template render into ./out-gitops and then read file(s):
+        # files: ${{ fs:readDir('./out-gitops') }}
 
     - id: register
       name: Register in Backstage catalog
       action: catalog:register
       input:
-        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        repoContentsUrl: ${{ steps.publish-app.output.repoContentsUrl }}
         # catalogInfoPath: /catalog-info.yaml  # uncomment if not at repo root
 
   #############################################
@@ -106,4 +166,4 @@ spec:
   output:
     links:
       - title: New repository
-        url: ${{ steps.publish.output.remoteUrl }}
+        url: ${{ steps.publish-app.output.remoteUrl }}

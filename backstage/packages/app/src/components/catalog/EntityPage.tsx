@@ -57,6 +57,11 @@ import {
   EntityKubernetesContent,
   isKubernetesAvailable,
 } from '@backstage/plugin-kubernetes';
+import {
+  EntityArgoCDContent,
+  EntityArgoCDOverviewCard,
+  isArgocdAvailable,
+} from '@roadiehq/backstage-plugin-argo-cd';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -67,16 +72,10 @@ const techdocsContent = (
 );
 
 const cicdContent = (
-  // This is an example of how you can implement your company's logic in entity page.
-  // You can for example enforce that all components of type 'service' should use GitHubActions
   <EntitySwitch>
-    {/*
-      Here you can add support for different CI/CD services, for example
-      using @backstage-community/plugin-github-actions as follows:
-      <EntitySwitch.Case if={isGithubActionsAvailable}>
-        <EntityGithubActionsContent />
-      </EntitySwitch.Case>
-     */}
+    <EntitySwitch.Case if={isArgocdAvailable}>
+      <EntityArgoCDContent />
+    </EntitySwitch.Case>
     <EntitySwitch.Case>
       <EmptyState
         title="No CI/CD available for this entity"
@@ -134,10 +133,17 @@ const overviewContent = (
       <EntityCatalogGraphCard variant="gridItem" height={400} />
     </Grid>
 
-    <Grid item md={4} xs={12}>
+    <EntitySwitch>
+      <EntitySwitch.Case if={isArgocdAvailable}>
+        <Grid item md={6} xs={12}>
+          <EntityArgoCDOverviewCard />
+        </Grid>
+      </EntitySwitch.Case>
+    </EntitySwitch>
+    <Grid item md={6} xs={12}>
       <EntityLinksCard />
     </Grid>
-    <Grid item md={8} xs={12}>
+    <Grid item xs={12}>
       <EntityHasSubcomponentsCard variant="gridItem" />
     </Grid>
   </Grid>
