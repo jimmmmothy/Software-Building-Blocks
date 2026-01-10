@@ -21,7 +21,6 @@ spec:
           description: Name of the LLM service (used for repo + folder)
 
     - title: API Settings
-      required: [openAiKey]
       properties:
         openAiKey:
           type: string
