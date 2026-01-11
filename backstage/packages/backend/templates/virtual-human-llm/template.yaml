@@ -27,6 +27,14 @@ spec:
           title: OpenAI API Key
           ui:widget: password
 
+    - title: Catalog Settings
+      properties:
+        system:
+          type: string
+          title: Parent System
+          description: Backstage system this component belongs to
+          default: virtual-human
+
     - title: GitHub repo settings
       required: [owner, repo, visibility]
       properties:
@@ -51,6 +59,7 @@ spec:
         values:
           componentName: ${{ parameters.componentName }}
           openAiKey: ${{ parameters.openAiKey }}
+          system: ${{ parameters.system }}
         copyWithoutRender:
           - .env.example
           - .gitignore

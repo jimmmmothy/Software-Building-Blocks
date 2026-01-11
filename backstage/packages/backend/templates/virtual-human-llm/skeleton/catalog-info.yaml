@@ -3,7 +3,10 @@ kind: Component
 metadata:
   name: ${{ values.componentName }}
   description: Python LLM service
+  annotations:
+    backstage.io/techdocs-ref: dir:.
 spec:
   type: service
   owner: your-team
   lifecycle: experimental
+  system: ${{ values.system }}

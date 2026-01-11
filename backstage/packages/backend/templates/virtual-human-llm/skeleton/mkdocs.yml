@@ -1,0 +1,14 @@
+site_name: Virtual Human LLM Service
+nav:
+  - Overview: index.md
+  - Relational diagrams: diagrams.md
+plugins:
+  - techdocs-core
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
